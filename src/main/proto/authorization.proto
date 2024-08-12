@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package authorization;
+
+option java_package = "ru.itcollege.grpc.authorization";
+option java_multiple_files = true;
+
+message JWTPayload {
+  string access = 1;
+}
+
+message User {
+  string uid = 1;
+}
+
+service AuthorizationService {
+  rpc getUserByAccess(JWTPayload) returns (User);
+}
