@@ -26,6 +26,11 @@ dependencies {
   // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
   implementation("io.jsonwebtoken:jjwt:0.9.1")
 
+  implementation("org.springframework.boot:spring-boot-starter-security")
+  implementation("org.springframework.ldap:spring-ldap-core")
+  implementation("org.springframework.security:spring-security-ldap")
+  implementation("com.unboundid:unboundid-ldapsdk")
+
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
