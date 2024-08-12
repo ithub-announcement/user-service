@@ -16,19 +16,21 @@ import javax.crypto.spec.SecretKeySpec
  * */
 
 @Component
-class JwtProvider(@Value("\${jwt.secret}") private val jwtAccessSecret: String) {
+class JwtProvider(
+  @Value("\${jwt.secret}") private val jwtAccessSecret: String,
+  @Value("\${jwt.access-token-validity-hours}") private var jwtAccessValidityHours: Int
+) {
 
   /**
    * ## decode
    *
    * Перевод строки secret в SecretKey.
    *
-   * @param secret
    * */
 
-  private fun decode(secret: String): SecretKey {
-    val decodeKey = Base64.getDecoder().decode(secret)
-    return SecretKeySpec(decodeKey, 0, decodeKey.size, "HmacSHA512")
+  private fun decode(): SecretKey {
+    val decodedKey = Base64.getDecoder().decode(jwtAccessSecret.toByteArray())
+    return SecretKeySpec(decodedKey, 0, decodedKey.size, "HmacSHA512")
   }
 
   /**
@@ -39,7 +41,7 @@ class JwtProvider(@Value("\${jwt.secret}") private val jwtAccessSecret: String) 
    *
    * */
 
-  private var secret: SecretKey = this.decode(this.jwtAccessSecret)
+  private var secret: SecretKey = this.decode()
 
   /**
    * ## generate
@@ -47,12 +49,11 @@ class JwtProvider(@Value("\${jwt.secret}") private val jwtAccessSecret: String) 
    * Генерация JWT токена.
    *
    * @param username
-   * @param validity
    * */
 
-  fun generate(username: String, validity: Long): String {
+  fun generate(username: String): String {
     val now: Date = Date()
-    val expired: Date = Date(now.time + validity * 60 * 60 * 1000)
+    val expired: Date = Date(now.time + this.jwtAccessValidityHours * 60 * 60 * 1000)
     return Jwts.builder().setIssuedAt(now).setExpiration(expired).setSubject(username)
       .signWith(SignatureAlgorithm.HS512, this.secret).compact()
   }
