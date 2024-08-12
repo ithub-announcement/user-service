@@ -1,6 +1,7 @@
 package ru.itcollege.userservice.core.providers
 
 import io.jsonwebtoken.*
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.*
 import javax.crypto.SecretKey
@@ -15,17 +16,7 @@ import javax.crypto.spec.SecretKeySpec
  * */
 
 @Component
-class JwtProvider {
-
-  /**
-   * jwtAccessSecret
-   *
-   * Секретный ключ для JWT токенов.
-   *
-   * todo: Нужно перенести значение в конфиг.
-   * */
-
-  private final var jwtAccessSecret = "bXkgc3VwZXIgZ3JvdXAgc2VjcmV0LWtleS1rZXkgc3RyaW5n"
+class JwtProvider(@Value("\${jwt.secret}") private val jwtAccessSecret: String) {
 
   /**
    * ## decode
