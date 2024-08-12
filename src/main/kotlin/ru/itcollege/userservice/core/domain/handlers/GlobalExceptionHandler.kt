@@ -1,4 +1,4 @@
-package ru.itcollege.userservice.core.handlers
+package ru.itcollege.userservice.core.domain.handlers
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

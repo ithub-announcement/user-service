@@ -1,4 +1,4 @@
-package ru.itcollege.userservice.core.providers
+package ru.itcollege.userservice.core.domain.providers
 
 import io.jsonwebtoken.*
 import org.springframework.beans.factory.annotation.Value
