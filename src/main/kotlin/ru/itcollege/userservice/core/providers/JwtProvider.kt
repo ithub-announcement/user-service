@@ -56,7 +56,7 @@ class JwtProvider {
    * Генерация JWT токена.
    *
    * @param username
-   * @param validity (default is ${jwt.access-token-validity-hours})
+   * @param validity
    * */
 
   fun generate(username: String, validity: Long): String {
