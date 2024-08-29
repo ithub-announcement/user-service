@@ -20,7 +20,7 @@ class AuthController(private var authService: AuthService) {
   }
 
   @PostMapping("/validate")
-  fun validate(@RequestBody body: JwtPayload): ResponseEntity<() -> Unit> {
+  fun validate(@RequestBody body: JwtPayload): ResponseEntity<Unit> {
     return this.authService.validate(body)
   }
 }
