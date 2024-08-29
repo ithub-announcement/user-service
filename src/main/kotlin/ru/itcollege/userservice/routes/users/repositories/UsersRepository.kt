@@ -5,5 +5,4 @@ import org.springframework.stereotype.Repository
 import ru.itcollege.userservice.routes.users.models.entities.User
 
 @Repository
-interface UsersRepository : JpaRepository<User, String> {
-}
+interface UsersRepository : JpaRepository<User, String>

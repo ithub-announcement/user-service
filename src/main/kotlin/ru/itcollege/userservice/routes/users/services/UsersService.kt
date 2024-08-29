@@ -1,5 +1,6 @@
 package ru.itcollege.userservice.routes.users.services
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Service
 import ru.itcollege.userservice.core.domain.providers.JwtProvider
 import ru.itcollege.userservice.routes.users.models.entities.User
@@ -29,9 +30,9 @@ class UsersService(private var usersRepository: UsersRepository, private var jwt
    * @param access
    * */
 
-  fun findByAccess(access: String): Optional<User?> {
+  fun findByAccess(access: String): User {
     val uid = this.jwtProvider.read(access)
-    return this.usersRepository.findById(uid)
+    return this.usersRepository.findById(uid).get()
   }
 
   /**
@@ -77,5 +78,49 @@ class UsersService(private var usersRepository: UsersRepository, private var jwt
     if (current.isEmpty) {
       this.create(uid)
     } else return
+  }
+
+  /**
+   * ## changeUserProperty
+   *
+   * Метод чтобы изменить данные пользователя.
+   *
+   * @param uid
+   * @param update
+   * */
+
+  private fun changeUserProperty(uid: String, update: (User) -> Unit): User {
+    val current = this.usersRepository.findById(uid).get().apply(update)
+    return this.usersRepository.save(current)
+  }
+
+  /**
+   * ## changeRole
+   *
+   * Изменить роль у пользователя.
+   *
+   * @param uid
+   * @param role
+   * */
+
+  fun changeRole(uid: String, role: URole, request: HttpServletRequest): User {
+    val current = this.findByAccess(request.getHeader("Authorization"))
+    require(current.role == URole.ADMIN) { "У вас нет прав на это." }
+    return this.changeUserProperty(uid) { it.role = role }
+  }
+
+  /**
+   * ## changeName
+   *
+   * Изменить имя пользователя.
+   *
+   * @param uid
+   * @param name
+   * */
+
+  fun changeName(uid: String, name: String, request: HttpServletRequest): User {
+    val current = this.findByAccess(request.getHeader("Authorization"))
+    require(current.role == URole.ADMIN || current.uid !== uid) { "У вас нет прав на это." }
+    return this.changeUserProperty(uid) { it.name = name }
   }
 }
