@@ -11,7 +11,11 @@ import ru.itcollege.userservice.routes.authorization.models.dto.JwtPayload
 import ru.itcollege.userservice.routes.users.services.UsersService
 
 @Service
-class AuthService(private var jwtProvider: JwtProvider, private var authenticationManager: AuthenticationManager, private var usersService: UsersService) {
+class AuthService(
+  private var jwtProvider: JwtProvider,
+  private var authenticationManager: AuthenticationManager,
+  private var usersService: UsersService
+) {
 
   /**
    * ## login
