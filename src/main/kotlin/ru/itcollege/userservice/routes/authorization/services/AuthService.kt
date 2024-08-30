@@ -25,12 +25,12 @@ class AuthService(
    * @param payload
    * */
 
-  fun login(payload: AuthPayload): JwtPayload {
+  fun login(payload: AuthPayload): ResponseEntity<JwtPayload> {
     val authentication =
       this.authenticationManager.authenticate(UsernamePasswordAuthenticationToken(payload.username, payload.password))
     SecurityContextHolder.getContext().authentication = authentication
     this.usersService.validate(authentication.name)
-    return JwtPayload(this.jwtProvider.generate(authentication.name))
+    return ResponseEntity.ok().body(JwtPayload(this.jwtProvider.generate(authentication.name)))
   }
 
   /**
@@ -41,7 +41,7 @@ class AuthService(
    * @param payload
    * */
 
-  fun validate(payload: JwtPayload): ResponseEntity<() -> Unit> {
+  fun validate(payload: JwtPayload): ResponseEntity<Unit> {
     if (this.jwtProvider.isValidate(payload.access)) {
       return ResponseEntity.badRequest().build()
     }

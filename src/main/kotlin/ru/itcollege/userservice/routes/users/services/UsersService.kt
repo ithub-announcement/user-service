@@ -1,6 +1,7 @@
 package ru.itcollege.userservice.routes.users.services
 
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import ru.itcollege.userservice.core.domain.providers.JwtProvider
 import ru.itcollege.userservice.routes.users.models.entities.User
@@ -18,8 +19,9 @@ class UsersService(private var usersRepository: UsersRepository, private var jwt
    *
    * */
 
-  fun findAll(): MutableList<User> {
-    return this.usersRepository.findAll()
+  fun findAll(): ResponseEntity<MutableList<User>> {
+    val array = this.usersRepository.findAll()
+    return ResponseEntity.ok().body(array)
   }
 
   /**
@@ -30,9 +32,10 @@ class UsersService(private var usersRepository: UsersRepository, private var jwt
    * @param access
    * */
 
-  fun findByAccess(access: String): User {
+  fun findByAccess(access: String): ResponseEntity<Optional<User>> {
     val uid = this.jwtProvider.read(access)
-    return this.usersRepository.findById(uid).get()
+    val current = this.usersRepository.findById(uid)
+    return ResponseEntity.ok().body(current)
   }
 
   /**
@@ -43,8 +46,9 @@ class UsersService(private var usersRepository: UsersRepository, private var jwt
    * @param uid
    * */
 
-  fun findByUID(uid: String): Optional<User?> {
-    return this.usersRepository.findById(uid)
+  fun findByUID(uid: String): ResponseEntity<Optional<User>> {
+    val current = this.usersRepository.findById(uid)
+    return ResponseEntity.ok().body(current)
   }
 
   /**
@@ -56,13 +60,13 @@ class UsersService(private var usersRepository: UsersRepository, private var jwt
    * @param role
    * */
 
-  private fun create(uid: String, role: URole = URole.DEFAULT): User {
+  private fun create(uid: String, role: URole = URole.DEFAULT): ResponseEntity<User> {
     val current = User().apply {
       this.role = role
       this.uid = uid
       this.name = uid
     }
-    return this.usersRepository.save(current)
+    return ResponseEntity.status(201).body(this.usersRepository.save(current))
   }
 
   /**
@@ -89,9 +93,9 @@ class UsersService(private var usersRepository: UsersRepository, private var jwt
    * @param update
    * */
 
-  private fun changeUserProperty(uid: String, update: (User) -> Unit): User {
+  private fun changeUserProperty(uid: String, update: (User) -> Unit): ResponseEntity<User> {
     val current = this.usersRepository.findById(uid).get().apply(update)
-    return this.usersRepository.save(current)
+    return ResponseEntity.ok().body(this.usersRepository.save(current))
   }
 
   /**
@@ -103,9 +107,9 @@ class UsersService(private var usersRepository: UsersRepository, private var jwt
    * @param role
    * */
 
-  fun changeRole(uid: String, role: URole, request: HttpServletRequest): User {
+  fun changeRole(uid: String, role: URole, request: HttpServletRequest): ResponseEntity<User> {
     val current = this.findByAccess(request.getHeader("Authorization"))
-    require(current.role == URole.ADMIN) { "У вас нет прав на это." }
+    require(current.body?.get()?.role == URole.ADMIN) { ResponseEntity.status(401).body("У вас нет прав на это.") }
     return this.changeUserProperty(uid) { it.role = role }
   }
 
@@ -118,9 +122,9 @@ class UsersService(private var usersRepository: UsersRepository, private var jwt
    * @param name
    * */
 
-  fun changeName(uid: String, name: String, request: HttpServletRequest): User {
+  fun changeName(uid: String, name: String, request: HttpServletRequest): ResponseEntity<User> {
     val current = this.findByAccess(request.getHeader("Authorization"))
-    require(current.role == URole.ADMIN || current.uid !== uid) { "У вас нет прав на это." }
+    require(current.body?.get()?.role == URole.ADMIN || current.body?.get()?.uid !== uid) { ResponseEntity.status(401).body("У вас нет прав на это.") }
     return this.changeUserProperty(uid) { it.name = name }
   }
 }
