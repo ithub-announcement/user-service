@@ -15,7 +15,7 @@ import ru.itcollege.userservice.routes.authorization.services.AuthService
 @RequestMapping("/auth")
 class AuthController(private var authService: AuthService) {
   @PostMapping("/login")
-  fun login(@RequestBody body: AuthPayload): JwtPayload {
+  fun login(@RequestBody body: AuthPayload): ResponseEntity<JwtPayload> {
     return this.authService.login(body)
   }
 

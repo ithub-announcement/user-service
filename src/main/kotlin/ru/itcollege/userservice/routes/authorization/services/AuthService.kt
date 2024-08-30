@@ -8,9 +8,14 @@ import org.springframework.stereotype.Service
 import ru.itcollege.userservice.core.domain.providers.JwtProvider
 import ru.itcollege.userservice.routes.authorization.models.dto.AuthPayload
 import ru.itcollege.userservice.routes.authorization.models.dto.JwtPayload
+import ru.itcollege.userservice.routes.users.services.UsersService
 
 @Service
-class AuthService(private var jwtProvider: JwtProvider, private var authenticationManager: AuthenticationManager) {
+class AuthService(
+  private var jwtProvider: JwtProvider,
+  private var authenticationManager: AuthenticationManager,
+  private var usersService: UsersService
+) {
 
   /**
    * ## login
@@ -20,11 +25,12 @@ class AuthService(private var jwtProvider: JwtProvider, private var authenticati
    * @param payload
    * */
 
-  fun login(payload: AuthPayload): JwtPayload {
+  fun login(payload: AuthPayload): ResponseEntity<JwtPayload> {
     val authentication =
       this.authenticationManager.authenticate(UsernamePasswordAuthenticationToken(payload.username, payload.password))
     SecurityContextHolder.getContext().authentication = authentication
-    return JwtPayload(this.jwtProvider.generate(authentication.name))
+    this.usersService.validate(authentication.name)
+    return ResponseEntity.ok().body(JwtPayload(this.jwtProvider.generate(authentication.name)))
   }
 
   /**
