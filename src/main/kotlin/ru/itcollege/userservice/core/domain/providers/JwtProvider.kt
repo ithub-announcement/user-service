@@ -52,27 +52,26 @@ class JwtProvider(
    * */
 
   fun generate(username: String): String {
-    val now: Date = Date()
-    val expired: Date = Date(now.time + this.jwtAccessValidityHours * 60 * 60 * 1000)
+    val now = Date()
+    val expired = Date(now.time + this.jwtAccessValidityHours * 60 * 60 * 1000)
     return Jwts.builder().setIssuedAt(now).setExpiration(expired).setSubject(username)
       .signWith(SignatureAlgorithm.HS512, this.secret).compact()
   }
 
   /**
-   * ## isValidate
+   * ## validate
    *
    * Валидация JWT токена.
    *
    * @param token
    * */
 
-  fun isValidate(token: String): Boolean {
+  fun validate(token: String): Boolean {
     try {
-      Jwts.parser().setSigningKey(this.secret).parseClaimsJwt(token)
-      return true
+      val now = Date()
+      val expired = Jwts.parser().setSigningKey(this.secret).parseClaimsJws(token).body.expiration
+      return !now.after(expired)
     } catch (error: ExpiredJwtException) {
-      return false
-    } catch (error: SignatureException) {
       return false
     }
   }

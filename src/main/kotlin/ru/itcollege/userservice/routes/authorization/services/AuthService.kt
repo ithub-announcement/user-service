@@ -42,7 +42,7 @@ class AuthService(
    * */
 
   fun validate(payload: JwtPayload): ResponseEntity<Unit> {
-    if (this.jwtProvider.isValidate(payload.access)) {
+    if (!this.jwtProvider.validate(payload.access)) {
       return ResponseEntity.badRequest().build()
     }
     return ResponseEntity.ok().build()
